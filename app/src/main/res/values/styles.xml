@@ -6,6 +6,12 @@
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
         -->
+        <item name="android:statusBarColor">@color/colorAccent</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorControlNormal">#1DA1F2</item>
+        <item name="colorControlActivated">#1DA1F2</item>
+        <item name="colorControlHighlight">#1DA1F2</item>
     </style>
 
     <!-- Application theme. -->
