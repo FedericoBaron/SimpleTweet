@@ -23,8 +23,8 @@ import java.util.Locale;
 public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder>{
 
     public static final String TAG = "TweetsAdapter";
-    Context context;
-    List<Tweet> tweets;
+    private Context context;
+    private List<Tweet> tweets;
 
     // Pass in the context and list of tweets
     public TweetsAdapter(Context context, List<Tweet> tweets){
@@ -67,6 +67,8 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         tweets.addAll(tweetList);
         notifyDataSetChanged();
     }
+
+    //public void setAll()
 
     // Define a viewholder
     public class ViewHolder extends RecyclerView.ViewHolder{
