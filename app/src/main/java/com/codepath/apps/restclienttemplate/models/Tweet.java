@@ -33,6 +33,9 @@ public class Tweet {
     @ColumnInfo
     public long userId;
 
+    @ColumnInfo
+    public String imageUrl;
+
     @Ignore
     public User user;
 
@@ -47,6 +50,17 @@ public class Tweet {
         User user = User.fromJson(jsonObject.getJSONObject("user"));
         tweet.user = user;
         tweet.userId = user.id;
+        if(jsonObject.has("extended_entities")){
+            Log.i("TWEET", jsonObject.getJSONObject("extended_entities").toString());
+            JSONObject entities = jsonObject.getJSONObject("extended_entities");
+                JSONArray media = entities.getJSONArray("media");
+                Log.i("TWEET", "HERES THE MEDIA: " + media);
+                tweet.imageUrl = media.getJSONObject(0).getString("media_url_https");
+                Log.i("TWEET", "HERE'S THE MEDIA URL: " + tweet.imageUrl);
+        }
+        else{
+            tweet.imageUrl = "";
+        }
         return tweet;
     }
 

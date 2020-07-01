@@ -2,6 +2,7 @@ package com.codepath.apps.restclienttemplate;
 
 import android.content.Context;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import java.util.Locale;
 
 public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder>{
 
+    public static final String TAG = "TweetsAdapter";
     Context context;
     List<Tweet> tweets;
 
@@ -74,6 +76,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         TextView tvScreenUsername;
         TextView relativeDate;
         TextView tvScreenName;
+        ImageView attachedImage;
 
         public ViewHolder(@NonNull View itemView){
             super(itemView);
@@ -82,7 +85,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             tvScreenUsername = itemView.findViewById((R.id.tvScreenUsername));
             relativeDate = itemView.findViewById((R.id.relativeDate));
             tvScreenName = itemView.findViewById(R.id.tvScreenName);
-
+            attachedImage = itemView.findViewById(R.id.attachedImage);
         }
 
         public void bind(Tweet tweet) {
@@ -91,6 +94,15 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             tvScreenName.setText(tweet.user.name);
             relativeDate.setText(getRelativeTimeAgo(tweet.createdAt));
             Glide.with(context).load(tweet.user.profileImageUrl).into(ivProfileImage);
+            if(!tweet.imageUrl.isEmpty()){
+                attachedImage.setVisibility(View.VISIBLE);
+                Glide.with(context).load(tweet.imageUrl).into(attachedImage);
+                Log.i(TAG, "The image is: " + tweet.imageUrl);
+            }
+            else
+            {
+                attachedImage.setVisibility(View.GONE);
+            }
         }
     }
 

@@ -190,7 +190,8 @@ public class TimelineActivity extends AppCompatActivity {
 
                     // Resets and re-populates RV with latest tweets
                     adapter.clear();
-                    adapter.addAll(Tweet.fromJsonArray(jsonArray));
+                    //adapter.addAll(Tweet.fromJsonArray(jsonArray));
+                    adapter.addAll(tweetsFromNetwork);
 
                     //Now we call setRefreshing(false) to signal refresh has finished
                     swipeContainer.setRefreshing(false);
@@ -217,7 +218,7 @@ public class TimelineActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                Log.i(TAG,"onFailure", throwable);
+                Log.i(TAG,"onFailure populating timeline", throwable);
             }
         });
     }
