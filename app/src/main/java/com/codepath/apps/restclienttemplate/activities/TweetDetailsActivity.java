@@ -70,6 +70,7 @@ public class TweetDetailsActivity extends AppCompatActivity {
         tweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));
 
         wireUI();
+        retweetListener();
 
     }
 
@@ -98,22 +99,23 @@ public class TweetDetailsActivity extends AppCompatActivity {
             // Handler for add button click
             @Override
             public void onClick(View v) {
-
+                Log.i(TAG, "retweet clicked!");
+                postTweet(tweet);
             }
         });
     }
 
-    private void postTweet(){
+    private void postTweet(Tweet tweet){
         // Send an API request to post the tweet
-        client.getNextPageOfTweets(new JsonHttpResponseHandler() {
+        client.retweet(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
-
+                Log.i(TAG, "onSuccess retweet!");
             }
 
             @Override
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                Log.e(TAG, "onFailure to load more data", throwable);
+                Log.e(TAG, "onFailure to retweet", throwable);
             }
             // maxId is the id of the last tweet (older tweets have lower ids)
         }, tweet.id);
