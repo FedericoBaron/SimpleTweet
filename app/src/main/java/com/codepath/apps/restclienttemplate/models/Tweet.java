@@ -39,6 +39,18 @@ public class Tweet {
     @ColumnInfo
     public String imageUrl;
 
+    @ColumnInfo
+    public int retweetCount;
+
+    @ColumnInfo
+    public int favoriteCount;
+
+    @ColumnInfo
+    public boolean retweeted;
+
+    @ColumnInfo
+    public boolean favorited;
+
     @Ignore
     public User user;
 
@@ -55,6 +67,10 @@ public class Tweet {
         User user = User.fromJson(jsonObject.getJSONObject("user"));
         tweet.user = user;
         tweet.userId = user.id;
+        tweet.retweetCount = jsonObject.getInt("retweet_count");
+        tweet.favoriteCount = jsonObject.getInt("favorite_count");
+        tweet.favorited = jsonObject.getBoolean("retweeted");
+        tweet.retweeted = jsonObject.getBoolean("favorited");
 
         // Gets image from tweet
         if(jsonObject.has("extended_entities")){
@@ -102,5 +118,21 @@ public class Tweet {
 
     public User getUser() {
         return user;
+    }
+
+    public int getRetweetCount() {
+        return retweetCount;
+    }
+
+    public int getFavoriteCount() {
+        return favoriteCount;
+    }
+
+    public boolean isRetweeted() {
+        return retweeted;
+    }
+
+    public boolean isFavorited() {
+        return favorited;
     }
 }

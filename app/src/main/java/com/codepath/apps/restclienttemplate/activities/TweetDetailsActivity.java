@@ -1,5 +1,7 @@
 package com.codepath.apps.restclienttemplate.activities;
 
+import android.content.res.ColorStateList;
+import android.media.Image;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -45,6 +47,9 @@ public class TweetDetailsActivity extends AppCompatActivity {
     private TextView tvBody;
     private TextView tvScreenUsername;
     private ImageView ivProfileImage;
+    private Button favorite;
+    private TextView retweetCount;
+    private TextView favoriteCount;
 
     private TwitterClient client;
 
@@ -55,6 +60,7 @@ public class TweetDetailsActivity extends AppCompatActivity {
 
         client = TwitterApp.getRestClient(this);
 
+
         // the view objects
         // Find the views
         retweet = findViewById(R.id.retweet);
@@ -64,6 +70,9 @@ public class TweetDetailsActivity extends AppCompatActivity {
         tvBody = findViewById(R.id.tvBody);
         tvScreenUsername = findViewById(R.id.tvScreenUsername);
         ivProfileImage = findViewById(R.id.ivProfileImage);
+        favorite = findViewById(R.id.favorite);
+        retweetCount = findViewById(R.id.retweetCount);
+        favoriteCount = findViewById(R.id.favoriteCount);
 
 
         // Unwrap the movie passed in via intent, using its simple name as a key
@@ -71,6 +80,8 @@ public class TweetDetailsActivity extends AppCompatActivity {
 
         wireUI();
         retweetListener();
+        favoriteListener();
+
 
     }
 
@@ -81,6 +92,8 @@ public class TweetDetailsActivity extends AppCompatActivity {
         tvScreenUsername.setText("@" + tweet.getUser().getScreenName());
         tvScreenName.setText(tweet.getUser().getName());
         relativeDate.setText(getRelativeTimeAgo(tweet.getCreatedAt()));
+        retweetCount.setText(Integer.toString(tweet.getRetweetCount()));
+        favoriteCount.setText(Integer.toString(tweet.getFavoriteCount()));
         Glide.with(this).load(tweet.getUser().getProfileImageUrl()).into(ivProfileImage);
         if(!tweet.imageUrl.isEmpty()){
             attachedImage.setVisibility(View.VISIBLE);
@@ -91,6 +104,20 @@ public class TweetDetailsActivity extends AppCompatActivity {
         {
             attachedImage.setVisibility(View.GONE);
         }
+
+        if(tweet.isRetweeted()){
+            retweet.setBackgroundResource(R.drawable.ic_vector_retweet_blue);
+        }
+        else{
+            retweet.setBackgroundResource(R.drawable.ic_vector_retweet);
+        }
+
+        if(tweet.isFavorited()){
+            favorite.setBackgroundResource(R.drawable.ic_vector_heart_blue);
+        }
+        else{
+            favorite.setBackgroundResource(R.drawable.ic_vector_heart);
+        }
     }
 
     private void retweetListener() {
@@ -100,22 +127,104 @@ public class TweetDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "retweet clicked!");
-                postTweet(tweet);
+                if(tweet.retweeted) {
+                    unretweet(tweet);
+                    tweet.retweeted = false;
+                }
+                else{
+                    retweet(tweet);
+                    tweet.retweeted = true;
+                }
             }
         });
     }
 
-    private void postTweet(Tweet tweet){
-        // Send an API request to post the tweet
+    private void favoriteListener() {
+        // Listener for thumbnail click
+        favorite.setOnClickListener(new View.OnClickListener() {
+            // Handler for add button click
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "retweet clicked!");
+                if(tweet.favorited) {
+                    unfavorite(tweet);
+                    tweet.favorited = false;
+                }
+                else{
+                    favorite(tweet);
+                    tweet.favorited = true;
+                }
+            }
+        });
+    }
+
+    private void retweet(Tweet tweet){
+        // Send an API request to post the retweet
         client.retweet(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
                 Log.i(TAG, "onSuccess retweet!");
+                retweet.setBackgroundResource(R.drawable.ic_vector_retweet_blue);
+                retweetCount.setText(Integer.toString(Integer.parseInt(retweetCount.getText().toString()) + 1));
             }
 
             @Override
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
                 Log.e(TAG, "onFailure to retweet", throwable);
+            }
+            // maxId is the id of the last tweet (older tweets have lower ids)
+        }, tweet.id);
+    }
+
+    private void unretweet(Tweet tweet){
+        // Send an API request to post the unretweet
+        client.unretweet(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                Log.i(TAG, "onSuccess unretweet!");
+                retweet.setBackgroundResource(R.drawable.ic_vector_retweet);
+                retweetCount.setText(Integer.toString(Integer.parseInt(retweetCount.getText().toString()) - 1));
+            }
+
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                Log.e(TAG, "onFailure to retweet", throwable);
+            }
+            // maxId is the id of the last tweet (older tweets have lower ids)
+        }, tweet.id);
+    }
+
+    private void favorite(Tweet tweet){
+        // Send an API request to post the favorite
+        client.favorite(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                Log.i(TAG, "onSuccess favorite!");
+                favorite.setBackgroundResource(R.drawable.ic_vector_heart_blue);
+                favoriteCount.setText(Integer.toString(Integer.parseInt(favoriteCount.getText().toString()) + 1));
+            }
+
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                Log.e(TAG, "onFailure to favorite", throwable);
+            }
+            // maxId is the id of the last tweet (older tweets have lower ids)
+        }, tweet.id);
+    }
+
+    private void unfavorite(Tweet tweet){
+        // Send an API request to post unfavorite
+        client.unfavorite(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                Log.i(TAG, "onSuccess unfavorite!");
+                favorite.setBackgroundResource(R.drawable.ic_vector_heart);
+                favoriteCount.setText(Integer.toString(Integer.parseInt(favoriteCount.getText().toString()) - 1));
+            }
+
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                Log.e(TAG, "onFailure to unfavorite", throwable);
             }
             // maxId is the id of the last tweet (older tweets have lower ids)
         }, tweet.id);
