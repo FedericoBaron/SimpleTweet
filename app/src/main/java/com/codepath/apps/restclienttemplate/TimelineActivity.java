@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.models.TweetDao;
@@ -37,6 +38,7 @@ public class TimelineActivity extends AppCompatActivity {
     private TweetDao tweetDao;
     private TwitterClient client;
     private RecyclerView rvTweets;
+    private Button retweet;
     private List<Tweet> tweets;
     private TweetsAdapter adapter;
     private SwipeRefreshLayout swipeContainer;
@@ -55,8 +57,10 @@ public class TimelineActivity extends AppCompatActivity {
 
         refreshListener();
 
-        // Find the RV
+        // Find the views
         rvTweets = findViewById(R.id.rvTweets);
+        retweet = findViewById(R.id.retweet);
+
 
 
         // Initialize the list of tweets and adapter
@@ -163,6 +167,7 @@ public class TimelineActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setLogo(R.drawable.ic_vector_twitter);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
+
         // Inflate the menu; this adds items to the action bar if it is present
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
