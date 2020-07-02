@@ -1,6 +1,8 @@
 package com.codepath.apps.restclienttemplate.models;
 
 import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -76,5 +78,29 @@ public class Tweet {
         }
 
         return tweets;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public User getUser() {
+        return user;
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -68,5 +69,15 @@
         android:layout_toEndOf="@+id/ivProfileImage"
         android:scaleType="fitCenter"
         tools:srcCompat="@tools:sample/avatars" />
+
+    <Button
+        android:id="@+id/retweet"
+        android:layout_width="15dp"
+        android:layout_height="10dp"
+        android:layout_below="@+id/tvBody"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_toEndOf="@+id/ivProfileImage"
+        android:background="@drawable/ic_vector_retweet" />
 
 </RelativeLayout>
