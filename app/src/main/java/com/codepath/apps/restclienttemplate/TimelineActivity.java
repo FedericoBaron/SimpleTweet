@@ -34,13 +34,14 @@ public class TimelineActivity extends AppCompatActivity {
     public static final String TAG = "TimelineActivity";
     private final int REQUEST_CODE = 20;
 
-    TweetDao tweetDao;
-    TwitterClient client;
-    RecyclerView rvTweets;
-    List<Tweet> tweets;
-    TweetsAdapter adapter;
-    SwipeRefreshLayout swipeContainer;
-    EndlessRecyclerViewScrollListener scrollListener;
+    private TweetDao tweetDao;
+    private TwitterClient client;
+    private RecyclerView rvTweets;
+    private List<Tweet> tweets;
+    private TweetsAdapter adapter;
+    private SwipeRefreshLayout swipeContainer;
+    private EndlessRecyclerViewScrollListener scrollListener;
+    private LinearLayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +53,63 @@ public class TimelineActivity extends AppCompatActivity {
         // Database
         tweetDao = ((TwitterApp) getApplicationContext()).getMyDatabase().tweetDao();
 
-        swipeContainer = findViewById(R.id.swipeContainer);
+        refreshListener();
 
+        // Find the RV
+        rvTweets = findViewById(R.id.rvTweets);
+
+
+        // Initialize the list of tweets and adapter
+        tweets = new ArrayList<>();
+        adapter = new TweetsAdapter(this, tweets);
+
+        layoutManager = new LinearLayoutManager(this);
+
+        // RV view setup: layout manager and the adapter
+        rvTweets.setLayoutManager(layoutManager);
+        rvTweets.setAdapter(adapter);
+
+        createScrollListener();
+
+        // Query for existing tweets in the DB
+        queryDB();
+
+        populateHomeTimeLine();
+
+    }
+
+    private void queryDB() {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "Showing data from database");
+                List<TweetWithUser> tweetWithUsers = tweetDao.recentItems();
+
+                // Gets the tweets from DB
+                List<Tweet> tweetsFromDB = TweetWithUser.getTweetList(tweetWithUsers);
+
+                // Adds to current view
+                adapter.setAll(tweetsFromDB);
+            }
+        });
+    }
+
+    private void createScrollListener() {
+        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                Log.i(TAG, "onLoadMore: " + page);
+                loadMoreData();
+            }
+        };
+
+        // Adds the scroll listener to the RV
+        rvTweets.addOnScrollListener(scrollListener);
+    }
+
+    // Configures and listens for refresh
+    private void refreshListener() {
+        swipeContainer = findViewById(R.id.swipeContainer);
 
         //Configure the refreshing colors
         swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
@@ -68,51 +124,10 @@ public class TimelineActivity extends AppCompatActivity {
                 populateHomeTimeLine();
             }
         });
-        // Find the RV
-        rvTweets = findViewById(R.id.rvTweets);
-
-
-        // Initialize the list of tweets and adapter
-        tweets = new ArrayList<>();
-        adapter = new TweetsAdapter(this, tweets);
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-
-        // RV view setup: layout manager and the adapter
-        rvTweets.setLayoutManager(layoutManager);
-        rvTweets.setAdapter(adapter);
-
-        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                Log.i(TAG, "onLoadMore: " + page);
-                loadMoreData();
-            }
-        };
-
-        // Adds the scroll listener to the RV
-        rvTweets.addOnScrollListener(scrollListener);
-
-        // Query for existing tweets in the DB
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                Log.i(TAG, "Showing data from database");
-                List<TweetWithUser> tweetWithUsers = tweetDao.recentItems();
-
-                // Gets the tweets from DB
-                List<Tweet> tweetsFromDB = TweetWithUser.getTweetList(tweetWithUsers);
-
-                // Adds to current view
-                adapter.clear();
-                adapter.addAll(tweetsFromDB);
-            }
-        });
-
-        populateHomeTimeLine();
 
     }
 
+    // Loads more tweets when we reach the bottom of TL
     private void loadMoreData() {
         // Send an API request to retrieve appropriate paginated data
         client.getNextPageOfTweets(new JsonHttpResponseHandler() {
@@ -129,7 +144,7 @@ public class TimelineActivity extends AppCompatActivity {
                     adapter.addAll(tweets);
 
                 } catch(JSONException e){
-                    e.printStackTrace();
+                    Log.e(TAG, "failed to load more data", e);
                 }
             }
 
@@ -137,9 +152,12 @@ public class TimelineActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
                 Log.e(TAG, "onFailure to load more data", throwable);
             }
+            // maxId is the id of the last tweet (older tweets have lower ids)
         }, tweets.get(tweets.size() - 1).id -1);
     }
 
+
+    // Creates menu options at the top action bar
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -151,6 +169,7 @@ public class TimelineActivity extends AppCompatActivity {
         return true;
     }
 
+    // Action for when a menu option is selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Compose icon has been selected
@@ -164,6 +183,7 @@ public class TimelineActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Adds published tweet to the top of the TL
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == REQUEST_CODE && resultCode == RESULT_OK){
@@ -193,9 +213,7 @@ public class TimelineActivity extends AppCompatActivity {
                     Log.i(TAG, "onSuccess" + json.toString());
 
                     // Resets and re-populates RV with latest tweets
-                    adapter.clear();
-                    //adapter.addAll(Tweet.fromJsonArray(jsonArray));
-                    adapter.addAll(tweetsFromNetwork);
+                    adapter.setAll(tweetsFromNetwork);
 
                     //Now we call setRefreshing(false) to signal refresh has finished
                     swipeContainer.setRefreshing(false);
@@ -205,6 +223,7 @@ public class TimelineActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             Log.i(TAG, "Saving data into database");
+
                             // Insert users first for foreign key to work
                             List<User> usersFromNetwork = User.fromJsonTweetArray(tweetsFromNetwork);
                             tweetDao.insertModel(usersFromNetwork.toArray(new User[0]));
