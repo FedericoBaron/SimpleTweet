@@ -23,6 +23,11 @@ import java.util.Locale;
 public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder>{
 
     public static final String TAG = "TweetsAdapter";
+    private static final int SECOND_MILLIS = 1000;
+    private static final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
+    private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
+    private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
+
     private Context context;
     private List<Tweet> tweets;
 
@@ -33,7 +38,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
     }
 
 
-    // For each row, inflate the layout
+    // For each row, inflate the layout (expensive operation)
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -41,7 +46,8 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         return new ViewHolder(view);
     }
 
-    // Bind values based on the position of the element
+    // Bind values based on the position of the element (cheap operation)
+    // RecyclerView works efficiently by binding to old views
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // Get the data at position
@@ -51,12 +57,13 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         holder.bind(tweet);
     }
 
+    // Gets the amount of tweet objects
     @Override
     public int getItemCount() {
         return tweets.size();
     }
 
-    // Clean all elements of the recycler
+    // Clear all elements of the recycler
     public void clear() {
         tweets.clear();
         notifyDataSetChanged();
@@ -68,7 +75,14 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         notifyDataSetChanged();
     }
 
-    //public void setAll()
+    // More efficient way of clearing and adding items
+    public void setAll(List<Tweet> tweetList)
+    {
+        tweets.clear();
+        tweets.addAll(tweetList);
+        notifyDataSetChanged();
+    }
+
 
     // Define a viewholder
     public class ViewHolder extends RecyclerView.ViewHolder{
@@ -90,6 +104,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             attachedImage = itemView.findViewById(R.id.attachedImage);
         }
 
+        // Binds tweet to view
         public void bind(Tweet tweet) {
             tvBody.setText(tweet.body);
             tvScreenUsername.setText("@" + tweet.user.screenName);
@@ -108,21 +123,32 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         }
     }
 
-    // getRelativeTimeAgo("Mon Apr 01 21:16:23 +0000 2014");
     public String getRelativeTimeAgo(String rawJsonDate) {
         String twitterFormat = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
         SimpleDateFormat sf = new SimpleDateFormat(twitterFormat, Locale.ENGLISH);
         sf.setLenient(true);
 
-        String relativeDate = "";
         try {
-            long dateMillis = sf.parse(rawJsonDate).getTime();
-            relativeDate = DateUtils.getRelativeTimeSpanString(dateMillis,
-                    System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString();
+            long time = sf.parse(rawJsonDate).getTime();
+            long now = System.currentTimeMillis();
+
+            final long diff = now - time;
+            if (diff < MINUTE_MILLIS) {
+                return "Just now";
+            } else if (diff < 50 * MINUTE_MILLIS) {
+                return diff / MINUTE_MILLIS + "m";
+            } else if (diff < 90 * MINUTE_MILLIS) {
+                return "An hour ago";
+            } else if (diff < 24 * HOUR_MILLIS) {
+                return diff / HOUR_MILLIS + "h";
+            } else {
+                return diff / DAY_MILLIS + "d";
+            }
         } catch (ParseException e) {
+            Log.i(TAG, "getRelativeTimeAgo failed");
             e.printStackTrace();
         }
 
-        return relativeDate;
+        return "";
     }
 }

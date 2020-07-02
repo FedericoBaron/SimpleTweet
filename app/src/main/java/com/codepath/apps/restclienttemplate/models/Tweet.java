@@ -16,6 +16,7 @@ import org.parceler.Parcel;
 import java.util.ArrayList;
 import java.util.List;
 
+// Parcelable fields must be public
 @Parcel
 @Entity(foreignKeys = @ForeignKey(entity=User.class, parentColumns="id", childColumns="userId"))
 public class Tweet {
@@ -42,7 +43,9 @@ public class Tweet {
     // Empty constructor needed for parcel
     public Tweet(){}
 
+    // Assigns JSONObject properties to model
     public static Tweet fromJson(JSONObject jsonObject) throws JSONException {
+
         Tweet tweet = new Tweet();
         tweet.body = jsonObject.getString("text");
         tweet.createdAt = jsonObject.getString("created_at");// Notify the adapter of the new items made with `notifyItemRangeInserted()`
@@ -50,20 +53,21 @@ public class Tweet {
         User user = User.fromJson(jsonObject.getJSONObject("user"));
         tweet.user = user;
         tweet.userId = user.id;
+
+        // Gets image from tweet
         if(jsonObject.has("extended_entities")){
-            Log.i("TWEET", jsonObject.getJSONObject("extended_entities").toString());
             JSONObject entities = jsonObject.getJSONObject("extended_entities");
                 JSONArray media = entities.getJSONArray("media");
-                Log.i("TWEET", "HERES THE MEDIA: " + media);
                 tweet.imageUrl = media.getJSONObject(0).getString("media_url_https");
-                Log.i("TWEET", "HERE'S THE MEDIA URL: " + tweet.imageUrl);
         }
         else{
             tweet.imageUrl = "";
         }
+
         return tweet;
     }
 
+    // Makes list of Tweet objects and returns it
     public static List<Tweet> fromJsonArray(JSONArray jsonArray) throws JSONException {
         List<Tweet> tweets = new ArrayList<>();
 
