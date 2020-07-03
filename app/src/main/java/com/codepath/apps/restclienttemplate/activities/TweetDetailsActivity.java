@@ -1,8 +1,10 @@
 package com.codepath.apps.restclienttemplate.activities;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.media.Image;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
@@ -79,8 +81,8 @@ public class TweetDetailsActivity extends AppCompatActivity {
         tweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));
 
         wireUI();
-        retweetListener();
-        favoriteListener();
+        //retweetListener();
+        //favoriteListener();
 
 
     }
@@ -106,6 +108,7 @@ public class TweetDetailsActivity extends AppCompatActivity {
         }
 
         if(tweet.isRetweeted()){
+            Log.i(TAG,"this has been retweeted");
             retweet.setBackgroundResource(R.drawable.ic_vector_retweet_blue);
         }
         else{
@@ -118,10 +121,8 @@ public class TweetDetailsActivity extends AppCompatActivity {
         else{
             favorite.setBackgroundResource(R.drawable.ic_vector_heart);
         }
-    }
 
-    private void retweetListener() {
-        // Listener for thumbnail click
+
         retweet.setOnClickListener(new View.OnClickListener() {
             // Handler for add button click
             @Override
@@ -129,102 +130,106 @@ public class TweetDetailsActivity extends AppCompatActivity {
                 Log.i(TAG, "retweet clicked!");
                 if(tweet.retweeted) {
                     unretweet(tweet);
-                    tweet.retweeted = false;
                 }
                 else{
                     retweet(tweet);
-                    tweet.retweeted = true;
                 }
             }
         });
-    }
 
-    private void favoriteListener() {
-        // Listener for thumbnail click
         favorite.setOnClickListener(new View.OnClickListener() {
             // Handler for add button click
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "retweet clicked!");
+                Log.i(TAG, "favorite clicked!");
                 if(tweet.favorited) {
                     unfavorite(tweet);
-                    tweet.favorited = false;
+                    //tweet.favorited = false;
                 }
                 else{
                     favorite(tweet);
-                    tweet.favorited = true;
+                    //tweet.favorited = true;
                 }
             }
         });
     }
 
-    private void retweet(Tweet tweet){
+
+    private void retweet(final Tweet tweet){
         // Send an API request to post the retweet
         client.retweet(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
                 Log.i(TAG, "onSuccess retweet!");
                 retweet.setBackgroundResource(R.drawable.ic_vector_retweet_blue);
-                retweetCount.setText(Integer.toString(Integer.parseInt(retweetCount.getText().toString()) + 1));
+                tweet.retweeted = true;
+                tweet.retweetCount++;
+                retweetCount.setText(Integer.toString(tweet.retweetCount));
             }
 
             @Override
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                Log.e(TAG, "onFailure to retweet", throwable);
+                Log.e(TAG, "onFailure to retweet" + response, throwable);
             }
             // maxId is the id of the last tweet (older tweets have lower ids)
         }, tweet.id);
     }
 
-    private void unretweet(Tweet tweet){
+    private void unretweet(final Tweet tweet){
         // Send an API request to post the unretweet
         client.unretweet(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
                 Log.i(TAG, "onSuccess unretweet!");
                 retweet.setBackgroundResource(R.drawable.ic_vector_retweet);
-                retweetCount.setText(Integer.toString(Integer.parseInt(retweetCount.getText().toString()) - 1));
+                tweet.retweeted = false;
+                tweet.retweetCount--;
+                retweetCount.setText(Integer.toString(tweet.retweetCount));
             }
 
             @Override
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                Log.e(TAG, "onFailure to retweet", throwable);
+                Log.e(TAG, "onFailure to retweet" +response, throwable);
             }
             // maxId is the id of the last tweet (older tweets have lower ids)
         }, tweet.id);
     }
 
-    private void favorite(Tweet tweet){
+    private void favorite(final Tweet tweet){
         // Send an API request to post the favorite
         client.favorite(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
                 Log.i(TAG, "onSuccess favorite!");
                 favorite.setBackgroundResource(R.drawable.ic_vector_heart_blue);
-                favoriteCount.setText(Integer.toString(Integer.parseInt(favoriteCount.getText().toString()) + 1));
+                tweet.favorited = true;
+                tweet.favoriteCount++;
+                favoriteCount.setText(Integer.toString(tweet.favoriteCount));
             }
 
             @Override
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                Log.e(TAG, "onFailure to favorite", throwable);
+                Log.e(TAG, "onFailure to favorite" + response, throwable);
             }
             // maxId is the id of the last tweet (older tweets have lower ids)
         }, tweet.id);
     }
 
-    private void unfavorite(Tweet tweet){
+    private void unfavorite(final Tweet tweet){
         // Send an API request to post unfavorite
         client.unfavorite(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
                 Log.i(TAG, "onSuccess unfavorite!");
+                tweet.favorited = false;
+                tweet.favoriteCount--;
                 favorite.setBackgroundResource(R.drawable.ic_vector_heart);
-                favoriteCount.setText(Integer.toString(Integer.parseInt(favoriteCount.getText().toString()) - 1));
+                favoriteCount.setText(Integer.toString(tweet.favoriteCount));
             }
 
             @Override
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                Log.e(TAG, "onFailure to unfavorite", throwable);
+                Log.e(TAG, "onFailure to unfavorite" + response, throwable);
             }
             // maxId is the id of the last tweet (older tweets have lower ids)
         }, tweet.id);
@@ -247,5 +252,15 @@ public class TweetDetailsActivity extends AppCompatActivity {
         }
 
         return relativeDate;
+    }
+
+
+    // Listener for back button is pressed
+    @Override
+    public void onBackPressed() {
+        Intent i = new Intent();
+        i.putExtra("tweet", Parcels.wrap(tweet));
+        setResult(RESULT_OK,i);
+        finish();
     }
 }

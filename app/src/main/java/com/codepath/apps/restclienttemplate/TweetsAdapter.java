@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.codepath.apps.restclienttemplate.activities.TimelineActivity;
 import com.codepath.apps.restclienttemplate.activities.TweetDetailsActivity;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 
@@ -146,7 +147,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 intent.putExtra(Tweet.class.getSimpleName(), Parcels.wrap(tweet));
 
                 // Show the activity
-                context.startActivity(intent);
+                ((TimelineActivity) context).startActivityForResult(intent, 9);
             }
         }
     }

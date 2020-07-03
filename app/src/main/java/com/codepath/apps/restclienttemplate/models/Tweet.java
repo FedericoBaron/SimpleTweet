@@ -69,8 +69,8 @@ public class Tweet {
         tweet.userId = user.id;
         tweet.retweetCount = jsonObject.getInt("retweet_count");
         tweet.favoriteCount = jsonObject.getInt("favorite_count");
-        tweet.favorited = jsonObject.getBoolean("retweeted");
-        tweet.retweeted = jsonObject.getBoolean("favorited");
+        tweet.favorited = jsonObject.getBoolean("favorited");
+        tweet.retweeted = jsonObject.getBoolean("retweeted");
 
         // Gets image from tweet
         if(jsonObject.has("extended_entities")){
