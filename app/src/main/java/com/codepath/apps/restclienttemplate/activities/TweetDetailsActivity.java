@@ -63,8 +63,7 @@ public class TweetDetailsActivity extends AppCompatActivity {
         client = TwitterApp.getRestClient(this);
 
 
-        // the view objects
-        // Find the views
+        // Find the views and set them
         retweet = findViewById(R.id.retweet);
         attachedImage = findViewById(R.id.attachedImage);
         tvScreenName = findViewById(R.id.tvScreenName);
@@ -80,10 +79,72 @@ public class TweetDetailsActivity extends AppCompatActivity {
         // Unwrap the movie passed in via intent, using its simple name as a key
         tweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra(Tweet.class.getSimpleName()));
 
+        // Attaches view to values
         wireUI();
-        //retweetListener();
-        //favoriteListener();
 
+        // Sets retweet and favorite
+        setButtonColors();
+
+        // Listeners for retweet and favorite
+        retweetListener();
+        favoriteListener();
+
+
+    }
+
+    // Listener for retweet button click
+    private void retweetListener(){
+        retweet.setOnClickListener(new View.OnClickListener() {
+            // Handler for add button click
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "retweet clicked!");
+                if(tweet.retweeted) {
+                    unretweet(tweet);
+                }
+                else{
+                    retweet(tweet);
+                }
+            }
+        });
+    }
+
+    // Listener for favorite button click
+    private void favoriteListener(){
+        favorite.setOnClickListener(new View.OnClickListener() {
+            // Handler for add button click
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "favorite clicked!");
+                if(tweet.favorited) {
+                    unfavorite(tweet);
+                    //tweet.favorited = false;
+                }
+                else{
+                    favorite(tweet);
+                    //tweet.favorited = true;
+                }
+            }
+        });
+    }
+
+    private void setButtonColors(){
+        // sets retweet button to be the right color
+        if(tweet.isRetweeted()){
+            Log.i(TAG,"this has been retweeted");
+            retweet.setBackgroundResource(R.drawable.ic_vector_retweet_blue);
+        }
+        else{
+            retweet.setBackgroundResource(R.drawable.ic_vector_retweet);
+        }
+
+        // sets favorite button to be the right color
+        if(tweet.isFavorited()){
+            favorite.setBackgroundResource(R.drawable.ic_vector_heart_blue);
+        }
+        else{
+            favorite.setBackgroundResource(R.drawable.ic_vector_heart);
+        }
 
     }
 
@@ -106,54 +167,7 @@ public class TweetDetailsActivity extends AppCompatActivity {
         {
             attachedImage.setVisibility(View.GONE);
         }
-
-        if(tweet.isRetweeted()){
-            Log.i(TAG,"this has been retweeted");
-            retweet.setBackgroundResource(R.drawable.ic_vector_retweet_blue);
-        }
-        else{
-            retweet.setBackgroundResource(R.drawable.ic_vector_retweet);
-        }
-
-        if(tweet.isFavorited()){
-            favorite.setBackgroundResource(R.drawable.ic_vector_heart_blue);
-        }
-        else{
-            favorite.setBackgroundResource(R.drawable.ic_vector_heart);
-        }
-
-
-        retweet.setOnClickListener(new View.OnClickListener() {
-            // Handler for add button click
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "retweet clicked!");
-                if(tweet.retweeted) {
-                    unretweet(tweet);
-                }
-                else{
-                    retweet(tweet);
-                }
-            }
-        });
-
-        favorite.setOnClickListener(new View.OnClickListener() {
-            // Handler for add button click
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "favorite clicked!");
-                if(tweet.favorited) {
-                    unfavorite(tweet);
-                    //tweet.favorited = false;
-                }
-                else{
-                    favorite(tweet);
-                    //tweet.favorited = true;
-                }
-            }
-        });
     }
-
 
     private void retweet(final Tweet tweet){
         // Send an API request to post the retweet
