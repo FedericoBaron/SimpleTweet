@@ -43,19 +43,19 @@ public class TimelineActivity extends AppCompatActivity {
     private TweetDao tweetDao;
     private TwitterClient client;
     private RecyclerView rvTweets;
-    private Button retweet;
     private List<Tweet> tweets;
     private TweetsAdapter adapter;
     private SwipeRefreshLayout swipeContainer;
     private EndlessRecyclerViewScrollListener scrollListener;
     private LinearLayoutManager layoutManager;
-    ActivityTimelineBinding binding;
+    private ActivityTimelineBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = ActivityTimelineBinding.inflate(getLayoutInflater());
 
-        setContentView(R.layout.activity_timeline);
+        setContentView(binding.getRoot());
 
         client = TwitterApp.getRestClient(this);
 
@@ -65,10 +65,7 @@ public class TimelineActivity extends AppCompatActivity {
         refreshListener();
 
         // Find the views
-        rvTweets = findViewById(R.id.rvTweets);
-        retweet = findViewById(R.id.retweet);
-
-
+        rvTweets = binding.rvTweets;
 
         // Initialize the list of tweets and adapter
         tweets = new ArrayList<>();
@@ -120,7 +117,7 @@ public class TimelineActivity extends AppCompatActivity {
 
     // Configures and listens for refresh
     private void refreshListener() {
-        swipeContainer = findViewById(R.id.swipeContainer);
+        swipeContainer = binding.swipeContainer;
 
         //Configure the refreshing colors
         swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,

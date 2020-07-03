@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.codepath.apps.restclienttemplate.activities.TimelineActivity;
 import com.codepath.apps.restclienttemplate.activities.TweetDetailsActivity;
+import com.codepath.apps.restclienttemplate.databinding.ItemTweetBinding;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 
 import org.parceler.Parcels;
@@ -26,7 +27,7 @@ import java.util.Locale;
 
 public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder>{
 
-    public static final String TAG = "TweetsAdapter";
+    private static final String TAG = "TweetsAdapter";
     private static final int SECOND_MILLIS = 1000;
     private static final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
     private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
@@ -46,8 +47,13 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_tweet, parent, false);
-        return new ViewHolder(view);
+        // Use layout inflator to inflate a view
+        // Inflator turns XML content into a view
+        LayoutInflater inflater = LayoutInflater.from(context);
+        ItemTweetBinding binding = ItemTweetBinding.inflate(inflater);
+
+
+        return new ViewHolder(binding);
     }
 
     // Bind values based on the position of the element (cheap operation)
@@ -98,14 +104,14 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         TextView tvScreenName;
         ImageView attachedImage;
 
-        public ViewHolder(@NonNull View itemView){
-            super(itemView);
-            ivProfileImage = itemView.findViewById(R.id.ivProfileImage);
-            tvBody = itemView.findViewById(R.id.tvBody);
-            tvScreenUsername = itemView.findViewById((R.id.tvScreenUsername));
-            relativeDate = itemView.findViewById((R.id.relativeDate));
-            tvScreenName = itemView.findViewById(R.id.tvScreenName);
-            attachedImage = itemView.findViewById(R.id.attachedImage);
+        public ViewHolder(ItemTweetBinding binding){
+            super(binding.getRoot());
+            ivProfileImage = binding.ivProfileImage;
+            tvBody = binding.tvBody;
+            tvScreenUsername = binding.tvScreenUsername;
+            relativeDate = binding.relativeDate;
+            tvScreenName = binding.tvScreenName;
+            attachedImage = binding.attachedImage;
 
             // Add this as the itemView's OnClickListener
             itemView.setOnClickListener(this);

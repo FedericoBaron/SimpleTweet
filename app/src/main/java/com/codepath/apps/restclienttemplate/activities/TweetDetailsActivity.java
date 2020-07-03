@@ -19,6 +19,8 @@ import com.bumptech.glide.Glide;
 import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
+import com.codepath.apps.restclienttemplate.databinding.ActivityTimelineBinding;
+import com.codepath.apps.restclienttemplate.databinding.ActivityTweetDetailsBinding;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
@@ -54,26 +56,29 @@ public class TweetDetailsActivity extends AppCompatActivity {
     private TextView favoriteCount;
 
     private TwitterClient client;
+    private ActivityTweetDetailsBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tweet_details);
+        binding = ActivityTweetDetailsBinding.inflate(getLayoutInflater());
+
+        setContentView(binding.getRoot());
 
         client = TwitterApp.getRestClient(this);
 
 
         // Find the views and set them
-        retweet = findViewById(R.id.retweet);
-        attachedImage = findViewById(R.id.attachedImage);
-        tvScreenName = findViewById(R.id.tvScreenName);
-        relativeDate = findViewById(R.id.relativeDate);
-        tvBody = findViewById(R.id.tvBody);
-        tvScreenUsername = findViewById(R.id.tvScreenUsername);
-        ivProfileImage = findViewById(R.id.ivProfileImage);
-        favorite = findViewById(R.id.favorite);
-        retweetCount = findViewById(R.id.retweetCount);
-        favoriteCount = findViewById(R.id.favoriteCount);
+        retweet = binding.retweet;
+        attachedImage = binding.attachedImage;
+        tvScreenName = binding.tvScreenName;
+        relativeDate = binding.relativeDate;
+        tvBody = binding.tvBody;
+        tvScreenUsername = binding.tvScreenUsername;
+        ivProfileImage = binding.ivProfileImage;
+        favorite = binding.favorite;
+        retweetCount = binding.retweetCount;
+        favoriteCount = binding.favoriteCount;
 
 
         // Unwrap the movie passed in via intent, using its simple name as a key
