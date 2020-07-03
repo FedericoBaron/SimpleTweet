@@ -65,15 +65,15 @@
         android:layout_below="@+id/tvBody"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="0dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="50dp"
         android:layout_toEndOf="@+id/ivProfileImage"
         android:scaleType="fitCenter"
         tools:srcCompat="@tools:sample/avatars" />
 
     <Button
         android:id="@+id/retweet"
-        android:layout_width="30dp"
-        android:layout_height="20dp"
+        android:layout_width="40dp"
+        android:layout_height="28dp"
         android:layout_below="@+id/tvBody"
         android:layout_marginStart="10dp"
         android:layout_marginTop="5dp"
@@ -88,13 +88,13 @@
         android:layout_marginStart="4dp"
         android:layout_marginTop="3dp"
         android:layout_toEndOf="@+id/retweet"
-        android:textSize="18sp"
+        android:textSize="24sp"
         tools:text="123" />
 
     <Button
         android:id="@+id/favorite"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_below="@+id/tvBody"
         android:layout_marginStart="25dp"
         android:layout_marginTop="2dp"
@@ -109,7 +109,7 @@
         android:layout_marginStart="5dp"
         android:layout_marginTop="3dp"
         android:layout_toEndOf="@+id/favorite"
-        android:textSize="18sp"
+        android:textSize="24sp"
         tools:text="123" />
 
 </RelativeLayout>
